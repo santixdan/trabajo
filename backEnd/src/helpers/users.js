@@ -2,15 +2,69 @@ const User = require("../models/users.js")
 const bcryptjs = require("bcryptjs")
 
 const usersHelpers = {
-    validatePassUser: async (email, password) => {
-        const user = await User.findOne({ USR_EMAIL : email })
+    validatePassUser: async (USR_EMAIL, USR_PASSWORD) => {
+        const user = await User.findOne({ USR_EMAIL })
         if (!user) {
-            throw new Error("Usuario o contraseña incorrecta")
+            throw new Error("User not found or invalid credentials");
         }
-        const validPassword = bcryptjs.compareSync(password, user.USR_PASSWORD);
+        const validPassword = bcryptjs.compareSync(USR_PASSWORD, user.USR_PASSWORD);
         if (!validPassword) {
-            throw new Error("Usuario o contraseña incorrecta")
+            throw new Error("User not found or invalid credentials");
         }
+    },
+    validateIdentificationUser: async (USR_IDENTIFICATION) => {
+        const user = await User.findOne({ USR_IDENTIFICATION });
+        if (user) {
+            throw new Error("Identification already in use");
+        } return true
+    },
+    validateIdentificationUserUpdate: async (USR_IDENTIFICATION, ID) => {
+        const user = await User.findOne({ USR_IDENTIFICATION, _id: { $ne: ID } });
+        if (user) {
+            throw new Error("Identification already in use");
+        } return true
+    },
+    validateUsernameUser: async (USR_USERNAME) => {
+        const user = await User.findOne({ USR_USERNAME });
+        if (user) {
+            throw new Error("Username already in use");
+        } return true
+    },
+    validateUsernameUserUpdate: async (USR_USERNAME, ID) => {
+        const user = await User.findOne({ USR_USERNAME, _id: { $ne: ID } });
+        if (user) {
+            throw new Error("Username already in use");
+        } return true
+    },
+    validatePhoneUser: async (USR_PHONE) => {
+        const user = await User.findOne({ USR_PHONE });
+        if (user) {
+            throw new Error("Phone number already in use");
+        } return true
+    },
+    validatePhoneUserUpdate: async (USR_PHONE, ID) => {
+        const user = await User.findOne({ USR_PHONE, _id: { $ne: ID } });
+        if (user) {
+            throw new Error("Phone number already in use");
+        } return true
+    },
+    validateEmailUser: async (USR_EMAIL) => {
+        const user = await User.findOne({ USR_EMAIL });
+        if (user) {
+            throw new Error("Email already in use");
+        } return true
+    },
+    validateEmailUserUpdate: async (USR_EMAIL, ID) => {
+        const user = await User.findOne({ USR_EMAIL, _id: { $ne: ID } });
+        if (user) {
+            throw new Error("Email already in use");
+        } return true
+    },
+    validateIDUser: async (ID) => {
+        const user = await User.findById(ID);
+        if (!user) {
+            throw new Error("User not found");
+        } return true
     }
 }
 

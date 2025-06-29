@@ -21,5 +21,4 @@ myApp.use(Quasar, {
   plugins: { Notify }
 })
 myApp.use(pinia)
-myApp.component('font-awesome-icon', FontAwesomeIcon)
 myApp.mount('#app')
