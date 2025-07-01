@@ -7,6 +7,9 @@ const usersHelpers = {
         if (!user) {
             throw new Error("User not found or invalid credentials");
         }
+        if (user.USR_STATE_USER == 0) {
+            throw new Error("User not found or invalid credentials");
+        }
         const validPassword = bcryptjs.compareSync(USR_PASSWORD, user.USR_PASSWORD);
         if (!validPassword) {
             throw new Error("User not found or invalid credentials");

@@ -10,42 +10,79 @@
             </q-avatar>
           </router-link>
         </q-toolbar-title>
-        <h6 style="margin: 0px;"><q-icon name="person" />{{ name }}</h6>
+        <h6 style="margin: 0px"><q-icon name="person" />{{ name }}</h6>
         <q-space />
-        <q-btn icon="logout" flat round unelevated :ripple="false" @click="alert = true"/>
+        <q-btn
+          icon="logout"
+          flat
+          round
+          unelevated
+          :ripple="false"
+          @click="alert = true"
+        />
+      </q-toolbar>
+      <q-toolbar inset>
+        <q-breadcrumbs active-color="white" style="font-size: 16px" align="center">
+          <q-breadcrumbs-el
+            v-for="(crumb, index) in breadcrumbLinks"
+            :key="index"
+            :label="crumb.label"
+            :to="crumb.to"
+            :icon="crumb.icon"
+            :exact="true"
+            class="cursor-pointer"
+          />
+        </q-breadcrumbs>
       </q-toolbar>
     </q-header>
     <q-drawer v-model="leftDrawerOpen" side="left" overlay bordered>
       <q-list padding>
         <div class="q-pa-md q-gutter-sm column">
-          <q-btn unelevated rounded to="/users" label="Usuarios" color="primary" class="full-width q-mb-sm" />
+          <q-btn
+            unelevated
+            rounded
+            to="/home/users"
+            label="Usuarios"
+            color="primary"
+            icon="people"
+            class="full-width q-mb-sm"
+          />
         </div>
       </q-list>
-
-
     </q-drawer>
     <q-page-container>
-      <div v-if="$route.path === '/home'" class="q-pa-md row justify-center items-center q-gutter-md">
+      <div
+        v-if="$route.path === '/home'"
+        class="q-pa-md row justify-center items-center q-gutter-md"
+      >
         <q-card class="my-card text-white">
           <q-card-section class="bg-primary">
             <div class="text-h6" align="center">Usuarios</div>
           </q-card-section>
           <q-separator dark />
           <q-card-section id="imgSection">
-            <img id="imgCards" src="https://media-public.canva.com/ZD6iE/MAEpzcZD6iE/1/t.png" alt="usersIcon">
+            <img
+              id="imgCards"
+              src="https://media-public.canva.com/ZD6iE/MAEpzcZD6iE/1/t.png"
+              alt="usersIcon"
+            />
           </q-card-section>
           <q-separator />
           <q-card-actions id="btnSection">
-            <q-btn unelevated rounded to="/users" color="primary">BUSCAR</q-btn>
+            <q-btn unelevated rounded to="/home/users" color="primary"
+              >BUSCAR</q-btn
+            >
           </q-card-actions>
         </q-card>
       </div>
       <router-view></router-view>
     </q-page-container>
-    <q-footer class="text-black" style="background-color: #525252;">
+    <q-footer class="text-black" style="background-color: #525252">
       <q-toolbar>
         <q-toolbar-title>
-          <div class="text-h6 text-subtitle2 text-grey-4">Todos los derechos reservados, Claro 2025</div>
+          <div class="text-h6 text-subtitle2 text-grey-4">
+            Todos los derechos reservados, Claro 2025
+          </div>
         </q-toolbar-title>
       </q-toolbar>
     </q-footer>
@@ -61,7 +98,14 @@
           </q-card-section>
 
           <q-card-actions align="right">
-            <q-btn flat label="Sí" to="/" color="red-9" v-close-popup @click="logOut()" />
+            <q-btn
+              flat
+              label="Sí"
+              to="/"
+              color="red-9"
+              v-close-popup
+              @click="logOut()"
+            />
             <q-btn flat label="No" color="grey-9" v-close-popup />
           </q-card-actions>
         </q-card>
@@ -71,16 +115,27 @@
 </template>
 
 <script setup>
-import { ref } from 'vue';
+import { ref, computed } from "vue";
+import { useRoute } from "vue-router";
 import { useAuthStore } from "./../stores/useAuth.js";
 
 const authStore = useAuthStore();
+const route = useRoute();
 const leftDrawerOpen = ref(false);
-let name = authStore.getName();
+let name = authStore.getName().split(" ")[0];
 let alert = ref(false);
 
+const breadcrumbLinks = computed(() => {
+  const matched = route.matched.filter((r) => r.meta && r.meta.breadcrumb);
+  return matched.map((r) => ({
+    label: r.meta.breadcrumb,
+    icon: r.meta.icon,
+    to: { name: r.name, params: route.params },
+  }));
+});
+
 function logOut() {
-  authStore.deleteUser()
+  authStore.deleteUser();
 }
 
 function toggleLeftDrawer() {
@@ -101,6 +156,6 @@ function toggleLeftDrawer() {
 
 .my-card {
   width: 100%;
-  max-width: 400px
+  max-width: 400px;
 }
 </style>

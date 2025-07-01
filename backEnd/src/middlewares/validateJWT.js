@@ -1,5 +1,5 @@
 const jwt = require('jsonwebtoken');
-const Usuario = require("../models/users.js")
+const User = require("../models/users.js")
 
 
 const generateJWT = (uid) => {
@@ -26,7 +26,7 @@ const validteJWT = async (req, res, next) => {
         })
     }
     try {
-        let usuario;
+        let userLogged;
 
         const { uid } = jwt.verify(token, process.env.SECRETORPRIVATEKEY)
         if(!uid){
@@ -34,18 +34,18 @@ const validteJWT = async (req, res, next) => {
                 msg: "Error en la petición"
             })
         }
-        usuario = await Usuario.findById(uid);
-        if (!usuario) {
+        userLogged = await User.findById(uid);
+        if (!userLogged) {
             return res.status(401).json({
-                msg: "Error en la petición"//- usuario no existe DB
+                msg: "Error en la petición"
             })
         }
 
-        // if (usuario.estado == 0) {
-        //     return res.status(401).json({
-        //         msg: "Token no válido!!  " //- instructor con estado: false
-        //     })
-        // }
+        if (userLogged.USR_STATE_USER == 0) {
+            return res.status(401).json({
+                msg: "Error en la petición"
+            })
+        }
 
         next();
 
