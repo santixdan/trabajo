@@ -44,6 +44,12 @@ userRouter.post('/logIn', [
     validateFields
 ], httpUsers.postLogInUser)
 
+userRouter.post('/sendEmail', [
+    check("USR_EMAIL", "Email must be valid").isEmail(),
+    check("USR_EMAIL").custom(usersHelpers.validateSentEmailUser),
+    validateFields
+], httpUsers.postSendEmail)
+
 //PUT
 userRouter.put("/update/:ID", [
     validteJWT, 
@@ -61,23 +67,28 @@ userRouter.put("/update/:ID", [
         return usersHelpers.validateEmailUserUpdate(USR_EMAIL, req.params.ID)
     }),
     check("USR_PHONE", "Phone must be valid").isMobilePhone(),
-    check("USR_PHONE").custom((USR_PHONE, { req }) => {
-        return usersHelpers.validatePhoneUserUpdate(USR_PHONE, req.params.ID)
+    check("USR_PHONE").custom(async (USR_PHONE, { req }) => {
+        await usersHelpers.validatePhoneUserUpdate(USR_PHONE, req.params.ID)
     }),
     validateFields
 ], httpUsers.putUpdateUser)
-userRouter.put("/active/:ID", [
+userRouter.put("/changeStatus/:ID/:STATUS", [
     validteJWT, 
     check("ID","ID must be valid").isMongoId(),
     check("ID").custom(usersHelpers.validateIDUser),
+    check("STATUS","STATUS must be valid").notEmpty(),
+    check("STATUS").custom(usersHelpers.validateStatus),
     validateFields
-], httpUsers.putActiveUser)
-userRouter.put("/deactive/:ID", [
-    validteJWT, 
-    check("ID","ID must be valid").isMongoId(),
-    check("ID").custom(usersHelpers.validateIDUser),
+], httpUsers.putChangeStatusUser)
+userRouter.put('/updatePass', [
+    check("NEW_PASS", "Pass must be valid").notEmpty(),
+    check("CONF_PASS", "Pass must be valid").notEmpty(),
+    check("token", "Token must be valid").notEmpty(),
+    check("NEW_PASS").custom((NEW_PASS, { req }) => {
+        return usersHelpers.validateBothPass(NEW_PASS, req.body.CONF_PASS)
+    }),
     validateFields
-], httpUsers.putDeactiveUser)
+], httpUsers.putUpdatePassUser)
 
 //DELETE
 userRouter.delete("/delete/:ID", [

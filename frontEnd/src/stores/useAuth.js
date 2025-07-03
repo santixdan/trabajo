@@ -4,15 +4,15 @@ import { ref } from "vue"
 export const useAuthStore = defineStore('auth', () => {
     const token = ref(localStorage.getItem('token') || null);
     const userID = ref(localStorage.getItem('ID') || null);
-    const name = ref(localStorage.getItem('name') || null);
+    const username = ref(localStorage.getItem('username') || null);
 
-    function constructor(newToken, newUserID, newName) {
+    function constructor(newToken, newUserID, newUsername) {
         token.value = newToken;
         userID.value = newUserID;
-        name.value = newName;
+        username.value = newUsername;
         localStorage.setItem('token', newToken);
         localStorage.setItem('ID', newUserID);
-        localStorage.setItem('name', newName);
+        localStorage.setItem('username', newUsername);
     }
 
     function getToken() {
@@ -23,20 +23,20 @@ export const useAuthStore = defineStore('auth', () => {
         return userID.value;
     }
 
-    function getName() {
-        return name.value;
+    function getUsername() {
+        return username.value;
     }
 
     function deleteUser() {
         token.value = ""
         userID.value = ""
-        name.value = ""
+        username.value = ""
         localStorage.removeItem('ID');
         localStorage.removeItem('token');
-        localStorage.removeItem('name');
+        localStorage.removeItem('username');
     }
 
     return {
-        constructor, getToken, getID, getName, deleteUser
+        constructor, getToken, getID, getUsername, deleteUser
     }
 })

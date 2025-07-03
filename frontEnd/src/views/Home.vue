@@ -1,17 +1,13 @@
 <template>
   <q-layout view="hHh LpR fFf">
     <q-header elevated class="bg-primary text-white">
-      <q-toolbar class="custom-toolbar-title">
+      <q-toolbar>
         <q-btn dense flat round icon="menu" @click="toggleLeftDrawer" />
-        <q-toolbar-title>
-          <router-link to="/home">
-            <q-avatar class="cursor-pointer" size="55px">
-              <img src="./../assets/images/Claro-blanco 1.svg" />
-            </q-avatar>
-          </router-link>
-        </q-toolbar-title>
-        <h6 style="margin: 0px"><q-icon name="person" />{{ name }}</h6>
-        <q-space />
+        <router-link to="/home">
+          <img src="./../assets/images/Claro-blanco 1.svg" />
+        </router-link>
+        <q-space></q-space>
+        <h6 style="margin: 0px">{{ username }}</h6>
         <q-btn
           icon="logout"
           flat
@@ -21,28 +17,33 @@
           @click="alert = true"
         />
       </q-toolbar>
-      <q-toolbar inset>
-        <q-breadcrumbs active-color="white" style="font-size: 16px" align="center">
-          <q-breadcrumbs-el
-            v-for="(crumb, index) in breadcrumbLinks"
-            :key="index"
-            :label="crumb.label"
-            :to="crumb.to"
-            :icon="crumb.icon"
-            :exact="true"
-            class="cursor-pointer"
-          />
-        </q-breadcrumbs>
-      </q-toolbar>
+      <q-breadcrumbs active-color="white" style="font-size: 16px">
+        <q-breadcrumbs-el
+          v-for="(crumb, index) in breadcrumbLinks"
+          :key="index"
+          :label="crumb.label"
+          :to="crumb.to"
+          :icon="crumb.icon"
+          :exact="true"
+          class="cursor-pointer"
+        />
+      </q-breadcrumbs>
     </q-header>
-    <q-drawer v-model="leftDrawerOpen" side="left" overlay bordered>
+    <q-drawer
+      v-model="leftDrawerOpen"
+      side="left"
+      behavior="mobile"
+      overlay
+      bordered
+    >
       <q-list padding>
         <div class="q-pa-md q-gutter-sm column">
           <q-btn
             unelevated
             rounded
+            no-caps
             to="/home/users"
-            label="Usuarios"
+            label="Users"
             color="primary"
             icon="people"
             class="full-width q-mb-sm"
@@ -57,7 +58,7 @@
       >
         <q-card class="my-card text-white">
           <q-card-section class="bg-primary">
-            <div class="text-h6" align="center">Usuarios</div>
+            <div class="text-h6" align="center">Users</div>
           </q-card-section>
           <q-separator dark />
           <q-card-section id="imgSection">
@@ -69,15 +70,15 @@
           </q-card-section>
           <q-separator />
           <q-card-actions id="btnSection">
-            <q-btn unelevated rounded to="/home/users" color="primary"
-              >BUSCAR</q-btn
+            <q-btn no-caps unelevated rounded to="/home/users" color="primary"
+              >Search</q-btn
             >
           </q-card-actions>
         </q-card>
       </div>
       <router-view></router-view>
     </q-page-container>
-    <q-footer class="text-black" style="background-color: #525252">
+    <q-footer class="text-black" style="background-color: #525252; height: 40px; display: flex; align-items: center;" align="center">
       <q-toolbar>
         <q-toolbar-title>
           <div class="text-h6 text-subtitle2 text-grey-4">
@@ -90,17 +91,17 @@
       <q-dialog v-model="alert" persistent>
         <q-card>
           <q-card-section>
-            <div class="text-h6">Cerrar sesión</div>
+            <div class="text-h6">Log out</div>
           </q-card-section>
 
           <q-card-section class="q-pt-none">
-            ¿Seguro que deseas cerrar sesión?
+            Are you sure you want to log out?
           </q-card-section>
 
           <q-card-actions align="right">
             <q-btn
               flat
-              label="Sí"
+              label="Yes"
               to="/"
               color="red-9"
               v-close-popup
@@ -122,7 +123,7 @@ import { useAuthStore } from "./../stores/useAuth.js";
 const authStore = useAuthStore();
 const route = useRoute();
 const leftDrawerOpen = ref(false);
-let name = authStore.getName().split(" ")[0];
+let username = authStore.getUsername();
 let alert = ref(false);
 
 const breadcrumbLinks = computed(() => {

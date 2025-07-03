@@ -1,4 +1,3 @@
-// import { ref } from 'vue';
 import APIClient from './../plugins/axios.js';
 
 // Función GET

@@ -1,94 +1,110 @@
 <template>
-  <div align="center" id="superContainer" style="margin: 0px">
-    <q-card style="margin: 0px" class="my-card">
-      <q-card-actions class="cardContent" align="center">
-        <div class="column items-center q-mt-md">
-          <img
-            style="height: 100px; width: 100px"
-            src="./../assets/images/Claro-rojo 1.svg"
-          />
-        </div>
-        <div class="q-pa-md" style="max-width: 300px">
-          <q-form @submit="authenticateUser()" class="q-gutter-md">
-            <q-input
-              type="email"
-              v-model="email"
-              label="Correo"
-              lazy-rules
-              :rules="[
-                (val) =>
-                  (val && val.length > 0) || 'Por favor, dígite el correo',
-              ]"
+  <div>
+    <div align="center" id="mainContainer" style="margin: 0px">
+      <q-card style="margin: 0px" class="my-card">
+        <q-card-actions class="cardContent" align="center">
+          <div class="column items-center q-mt-md">
+            <img
+              style="height: 100px; width: 100px"
+              src="./../assets/images/Claro-rojo 1.svg"
             />
-            <q-input
-              :type="isPwd ? 'password' : 'text'"
-              v-model="password"
-              label="Contraseña"
-              lazy-rules
-              @paste.prevent
-              :rules="[
-                (val) =>
-                  (val && val.length > 0) || 'Por favor, dígite la contraseña',
-              ]"
-            >
-              <template v-slot:append>
-                <q-icon
-                  :name="isPwd ? 'visibility_off' : 'visibility'"
-                  class="cursor-pointer"
-                  @click="isPwd = !isPwd"
-                />
-              </template>
-            </q-input>
-            <q-btn
-              unelevated
-              rounded
-              no-caps
-              label="Iniciar sesión"
-              class="btn text-bold"
-              color="primary"
-              type="submit"
-              :loading="loading"
-            />
-            <div>
+          </div>
+          <div class="q-pa-md" style="max-width: 300px">
+            <q-form @submit="authenticateUser()" class="q-gutter-md">
+              <q-input
+                type="email"
+                v-model="email"
+                label="Email"
+                lazy-rules
+                :rules="[
+                  (val) => (val && val.length > 0) || 'Please, type your email',
+                ]"
+              />
+              <q-input
+                :type="isPwd ? 'password' : 'text'"
+                v-model="password"
+                label="Password"
+                lazy-rules
+                @paste.prevent
+                :rules="[
+                  (val) =>
+                    (val && val.length > 0) || 'Please, type your password',
+                ]"
+              >
+                <template v-slot:append>
+                  <q-icon
+                    :name="isPwd ? 'visibility_off' : 'visibility'"
+                    class="cursor-pointer"
+                    @click="isPwd = !isPwd"
+                  />
+                </template>
+              </q-input>
               <q-btn
                 unelevated
                 rounded
                 no-caps
-                label="Olvidé mi contraseña"
-                color="grey-9"
-                flat
-                class="q-ml-sm"
-                @click="modalForget = true"
+                label="Log in"
+                class="btn text-bold"
+                color="primary"
+                type="submit"
+                :loading="loadingBtnLogIn"
               />
-            </div>
-          </q-form>
-        </div>
-      </q-card-actions>
-    </q-card>
-    <!-- <div class="q-pa-md q-gutter-sm">
-            <q-dialog v-model="modalForget">
-                <q-card>
-                    <q-card-section class="bg-primary row items-center">
-                        <div class="text-h6 text-white">Cambiar contraseña</div>
-                        <q-space />
-                    </q-card-section>
+              <div>
+                <q-btn
+                  unelevated
+                  rounded
+                  no-caps
+                  label="Forgot your password?"
+                  color="grey-9"
+                  flat
+                  class="q-ml-sm"
+                  @click="modalForget = true"
+                />
+              </div>
+            </q-form>
+          </div>
+        </q-card-actions>
+      </q-card>
+    </div>
+    <div>
+      <q-dialog v-model="modalForget">
+        <q-card>
+          <q-card-section class="bg-primary row items-center">
+            <div class="text-h6 text-white">Recover password</div>
+            <q-space />
+          </q-card-section>
 
-                    <q-card-section>
-                        <div class="q-pa-md" style="max-width: 400px">
-                            <q-form class="q-gutter-md">
-                                <q-input type="email" style="max-width: 250px; min-width: 200px;" v-model="email2"
-                                    label="Correo" lazy-rules
-                                    :rules="[val => (val && val.length > 0) || 'Por favor, dígite el correo']" />
-                                <div>
-                                    <q-btn unelevated rounded :loading="loading" label="Enviar" type="submit"
-                                        color="primary" />
-                                </div>
-                            </q-form>
-                        </div>
-                    </q-card-section>
-                </q-card>
-            </q-dialog>
-        </div> -->
+          <q-card-section>
+            <div class="q-pa-md" style="max-width: 400px">
+              <q-form @submit="sendEmail()" class="q-gutter-md">
+                <q-input
+                  type="email"
+                  style="max-width: 250px; min-width: 200px"
+                  v-model="resetEmail"
+                  label="Email"
+                  lazy-rules
+                  :rules="[
+                    (val) =>
+                      (val && val.length > 0) || 'Please, type your email',
+                  ]"
+                />
+                <div>
+                  <q-btn
+                    unelevated
+                    rounded
+                    no-caps
+                    :loading="loadingBtnSend"
+                    label="Send"
+                    type="submit"
+                    color="primary"
+                  />
+                </div>
+              </q-form>
+            </div>
+          </q-card-section>
+        </q-card>
+      </q-dialog>
+    </div>
   </div>
 </template>
 
@@ -100,35 +116,56 @@ import {
   notifyErrorRequest,
   notifySuccessRequest,
 } from "./../composables/notify.js";
-import { postLogin } from "./../services/APIClient.js";
+import { postLogin, postData } from "./../services/APIClient.js";
 
 const router = useRouter();
 const authStore = useAuthStore();
 let email = ref("");
+let resetEmail = ref("");
 let password = ref("");
 let isPwd = ref(true);
 let modalForget = ref(false);
-let loading = ref(false);
+let loadingBtnLogIn = ref(false);
+let loadingBtnSend = ref(false);
 
 async function authenticateUser() {
-  loading.value = true;
+  loadingBtnLogIn.value = true;
   try {
     let data = await postLogin("/logIn", {
       USR_EMAIL: email.value.trim(),
       USR_PASSWORD: password.value.trim(),
     });
-    notifySuccessRequest("Inicio de sesión exitoso.");
-    authStore.constructor(data.token, data.user._id, data.user.USR_NAME);
+    notifySuccessRequest("Log in successfully");
+    authStore.constructor(data.token, data.user._id, data.user.USR_USERNAME);
     router.replace("/home");
     onReset();
     console.log(data);
   } catch (error) {
     console.log(error);
     notifyErrorRequest(
-      error?.response?.data?.errors?.[0]?.msg || "Error desconocido"
+      error?.response?.data?.errors?.[0]?.msg || "Unknown error"
     );
   } finally {
-    loading.value = false;
+    loadingBtnLogIn.value = false;
+  }
+}
+
+async function sendEmail() {
+  loadingBtnSend.value = true;
+  try {
+    let data = await postData("/sendEmail", {
+      USR_EMAIL: resetEmail.value,
+    });
+    notifySuccessRequest("Email sent successfully");
+    modalForget.value = false;
+    resetEmail.value = "";
+  } catch (error) {
+    console.log(error);
+    notifyErrorRequest(
+      error?.response?.data?.errors?.[0]?.msg || "Unknown error"
+    );
+  } finally {
+    loadingBtnSend.value = false;
   }
 }
 
@@ -158,7 +195,7 @@ body::before {
   left: 0;
   width: 100%;
   height: 100%;
-  background-image: url("https://img.lalr.co/cms/2017/07/07201512/CLARO-.jpg?size=xl&ratio=r40_21");
+  background-image: url("./../assets/images/CLARO-Background.jpg");
   background-size: cover;
   background-position: center;
   background-repeat: no-repeat;
@@ -172,15 +209,11 @@ body::before {
   margin-bottom: 10px;
 }
 
-#superContainer {
+#mainContainer {
   display: flex !important;
   justify-content: center !important;
   align-items: center !important;
   height: 100vh !important;
-}
-
-#logintxt {
-  margin-top: 15px;
 }
 
 .cardContent {

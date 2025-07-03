@@ -7,7 +7,7 @@ const usersHelpers = {
         if (!user) {
             throw new Error("User not found or invalid credentials");
         }
-        if (user.USR_STATE_USER == 0) {
+        if ([2,3,4,5].includes(user.USR_STATE_USER)) {
             throw new Error("User not found or invalid credentials");
         }
         const validPassword = bcryptjs.compareSync(USR_PASSWORD, user.USR_PASSWORD);
@@ -67,6 +67,23 @@ const usersHelpers = {
         const user = await User.findById(ID);
         if (!user) {
             throw new Error("User not found");
+        } return true
+    },
+    validateSentEmailUser: async (USR_EMAIL) => {
+        const user = await User.findOne({ USR_EMAIL });
+        if (!user) {
+            throw new Error("User not found");
+        } return true
+    },
+    validateBothPass: (NEW_PASS, CONF_PASS) => {
+        if (NEW_PASS != CONF_PASS) {
+            throw new Error("the passwords do not match");
+        } return true
+    },
+    validateStatus: (STATUS) => {
+        const allowedStatus = ["1", "2", "3", "4", "5"]
+        if (!allowedStatus.includes(STATUS)) {
+            throw new Error("Invalid status value");
         } return true
     }
 }

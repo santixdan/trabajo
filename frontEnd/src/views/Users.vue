@@ -1,31 +1,33 @@
 <template>
   <div class="todo">
-    <div class="q-mx-xl q-pt-lg">
+    <div>
       <q-table
         :rows="filteredRows"
         :columns="columns"
-        row-key="name"
+        row-key="_id"
         :loading="loadingTable"
         separator="vertical"
       >
         <template v-slot:top>
-          <div class="row items-center justify-between q-pa-sm full-width">
-            <div class="text-h6 text-bold">Usuarios</div>
+          <div
+            class="row items-center justify-between full-width"
+            align="center"
+          >
+            <div class="text-h6 text-bold">Users</div>
             <div class="row items-center justify-center q-gutter-md">
-              <q-input v-model="inpSearch" label="Buscar">
-                <template v-slot:append>
-                  <q-btn icon="search" round dense unelevated />
-                </template>
-              </q-input>
+              <q-input
+                v-model="inpSearch"
+                label="Search"
+                style="max-width: 110px"
+              />
               <q-btn
                 unelevated
                 round
                 icon="add"
                 color="primary"
                 @click="(isDialogOpen = true), (isCreating = true)"
-                size="md"
               >
-                <q-tooltip> Crear usuario </q-tooltip>
+                <q-tooltip> Create user </q-tooltip>
               </q-btn>
             </div>
           </div>
@@ -40,47 +42,59 @@
               "
               unelevated
               round
-              ><q-icon name="edit_note" size="md" />
-              <q-tooltip> Editar a {{ props.row.USR_NAME }} </q-tooltip>
+              size="sm"
+              ><q-icon name="edit" size="sm" />
+              <q-tooltip> Update {{ props.row.USR_NAME }} </q-tooltip>
             </q-btn>
             <q-btn
-              v-if="props.row.USR_STATE_USER == 0"
+              v-show="[2, 3, 4, 5].includes(props.row.USR_STATE_USER)"
               :loading="loadingStatus[props.row._id]"
-              @click="toggleStatus(props.row._id)"
+              @click="toggleStatus(props.row._id, 1)"
               unelevated
               round
               color="positive"
               size="sm"
               ><q-icon name="check" size="sm" /><q-tooltip>
-                Activar a {{ props.row.USR_NAME }}
+                Activate {{ props.row.USR_NAME }}
               </q-tooltip>
             </q-btn>
             <q-btn
-              v-else
+              v-show="props.row.USR_STATE_USER == 1"
               :loading="loadingStatus[props.row._id]"
-              @click="toggleStatus(props.row._id)"
+              @click="toggleStatus(props.row._id, 2)"
               unelevated
               round
               color="negative"
               size="sm"
               ><q-icon name="close" size="sm" /><q-tooltip>
-                Desactivar a {{ props.row.USR_NAME }}
+                Deactivate {{ props.row.USR_NAME }}
               </q-tooltip>
             </q-btn>
           </q-td>
         </template>
         <template v-slot:body-cell-usr_status="props">
           <q-td :props="props">
-            <span style="color: green" v-if="props.row.USR_STATE_USER == 1"
-              ><strong>Activo</strong></span
-            >
-            <span style="color: red" v-else><strong>Inactivo</strong></span>
+            <q-select
+              v-model="props.row.USR_STATE_USER"
+              :options="optionsStatus"
+              label="Status"
+              emit-value
+              map-options
+              @update:model-value="toggleStatus(props.row._id, $event)"
+            />
           </q-td>
         </template>
         <template v-slot:body-cell-actions="props">
           <q-td :props="props">
-            <q-checkbox v-model="selectedUsersSet" :val="props.row._id" :disable="selectionMode === 'active' && props.row.USR_STATE_USER === 0 ||
-                selectionMode === 'inactive' && props.row.USR_STATE_USER === 1"/>
+            <q-checkbox
+              v-model="selectedUsersSet"
+              :val="props.row._id"
+              :disable="
+                (selectionMode === 'active' &&
+                  [2, 3, 4, 5].includes(props.row.USR_STATE_USER)) ||
+                (selectionMode === 'inactive' && props.row.USR_STATE_USER === 1)
+              "
+            />
           </q-td>
         </template>
       </q-table>
@@ -91,9 +105,9 @@
         <q-card>
           <q-card-section class="bg-primary row items-center">
             <div class="text-h6 text-white" v-if="isCreating == true">
-              Crear Usuario
+              Create user
             </div>
-            <div class="text-h6 text-white" v-else>Editar Usuario</div>
+            <div class="text-h6 text-white" v-else>Update user</div>
             <q-space />
             <q-btn
               class="text-white"
@@ -107,98 +121,92 @@
           </q-card-section>
 
           <q-card-section>
-            <div class="q-pa-md" style="max-width: 400px">
-              <q-form
-                @submit="saveUser()"
-                @reset="onReset()"
-                class="q-gutter-md"
-              >
-                <q-input
-                  style="max-width: 250px; min-width: 200px"
-                  v-model="identification"
-                  type="number"
-                  label="Documento"
-                  lazy-rules
-                  :rules="[
-                    (val) =>
-                      (val && val.length > 0) ||
-                      'Por favor, dígite el documento del usuario',
-                  ]"
-                />
-                <q-input
-                  style="max-width: 250px; min-width: 200px"
-                  v-model="name"
-                  label="Nombre"
-                  lazy-rules
-                  :rules="[
-                    (val) =>
-                      (val && val.length > 0) ||
-                      'Por favor, dígite el nombre del usuario',
-                  ]"
-                />
-                <q-input
-                  style="max-width: 250px; min-width: 200px"
-                  v-model="username"
-                  label="Usuario"
-                  lazy-rules
-                  :rules="[
-                    (val) =>
-                      (val && val.length > 0) ||
-                      'Por favor, dígite el usuario único',
-                  ]"
-                />
-                <q-input
-                  style="max-width: 250px; min-width: 200px"
-                  v-model="email"
-                  type="email"
-                  label="Correo"
-                  lazy-rules
-                  :rules="[
-                    (val) =>
-                      (val && val.length > 0) ||
-                      'Por favor, dígite el correo del usuario',
-                  ]"
-                />
-                <q-input
-                  style="max-width: 250px; min-width: 200px"
-                  v-model="phone"
-                  type="tel"
-                  label="Celular"
-                  lazy-rules
-                  :rules="[
-                    (val) =>
-                      (val && val.length > 0) ||
-                      'Por favor, dígite el celular del usuario ',
-                  ]"
-                />
-                <q-input
-                  v-model="pass"
-                  @paste.prevent
-                  v-if="isCreating == true"
-                  :type="isPwd ? 'password' : 'text'"
-                  label="Contraseña"
-                  style="max-width: 250px; min-width: 200px"
-                  lazy-rules
-                  :rules="[
-                    (val) =>
-                      (val && val.length > 0) ||
-                      'Por favor, dígite la contraseña del usuario',
-                  ]"
-                >
-                  <template v-slot:append>
-                    <q-icon
-                      :name="isPwd ? 'visibility_off' : 'visibility'"
-                      class="cursor-pointer"
-                      @click="isPwd = !isPwd"
-                    />
-                  </template>
-                </q-input>
+            <div class="q-pa-md">
+              <q-form @submit="saveUser()" @reset="onReset()">
+                <div class="formGrid q-gutter-md q-mb-md">
+                  <q-input
+                    style="max-width: 250px; min-width: 200px"
+                    v-model="identification"
+                    type="number"
+                    label="Identification"
+                    lazy-rules
+                    :rules="[
+                      (val) =>
+                        (val && val.length > 0) ||
+                        'Please, type your identification number',
+                    ]"
+                  />
+                  <q-input
+                    style="max-width: 250px; min-width: 200px"
+                    v-model="name"
+                    label="Name"
+                    lazy-rules
+                    :rules="[
+                      (val) =>
+                        (val && val.length > 0) || 'Please, type your name',
+                    ]"
+                  />
+                  <q-input
+                    style="max-width: 250px; min-width: 200px"
+                    v-model="username"
+                    label="Username"
+                    lazy-rules
+                    :rules="[
+                      (val) =>
+                        (val && val.length > 0) || 'Please, type your username',
+                    ]"
+                  />
+                  <q-input
+                    style="max-width: 250px; min-width: 200px"
+                    v-model="email"
+                    type="email"
+                    label="Email"
+                    lazy-rules
+                    :rules="[
+                      (val) =>
+                        (val && val.length > 0) || 'Please, type your email',
+                    ]"
+                  />
+                  <q-input
+                    style="max-width: 250px; min-width: 200px"
+                    v-model="phone"
+                    type="tel"
+                    label="Phone"
+                    lazy-rules
+                    :rules="[
+                      (val) =>
+                        (val && val.length > 0) || 'Please, type your phone',
+                    ]"
+                  />
+                  <q-input
+                    v-model="pass"
+                    @paste.prevent
+                    v-if="isCreating == true"
+                    :type="isPwd ? 'password' : 'text'"
+                    label="Password"
+                    style="max-width: 250px; min-width: 200px"
+                    lazy-rules
+                    :rules="[
+                      (val) =>
+                        (val && val.length > 0) || 'Please, type your password',
+                    ]"
+                  >
+                    <template v-slot:append>
+                      <q-icon
+                        :name="isPwd ? 'visibility_off' : 'visibility'"
+                        class="cursor-pointer"
+                        @click="isPwd = !isPwd"
+                      />
+                    </template>
+                  </q-input>
+                </div>
                 <div>
                   <q-btn
                     unelevated
                     rounded
+                    no-caps
                     :loading="loadingButton"
-                    label="Guardar"
+                    label="Save"
                     type="submit"
                     color="primary"
                   />
@@ -219,7 +227,9 @@
           v-show="selectedUsers.size != 0 && selectionMode === 'inactive'"
           @click="bulkToggleUsers('activate')"
         >
-          <q-tooltip  anchor="top middle" self="bottom middle" :offset="[10, 10]">Activar</q-tooltip>
+          <q-tooltip anchor="top middle" self="bottom middle" :offset="[10, 10]"
+            >Activate all</q-tooltip
+          >
         </q-btn>
         <q-btn
           round
@@ -229,7 +239,21 @@
           v-show="selectedUsers.size != 0 && selectionMode === 'active'"
           @click="bulkToggleUsers('deactivate')"
         >
-          <q-tooltip anchor="top middle" self="bottom middle" :offset="[10, 10]">Desctivar</q-tooltip>
+          <q-tooltip anchor="top middle" self="bottom middle" :offset="[10, 10]"
+            >Deactivate all</q-tooltip
+          ></q-btn
+        >
+        <q-btn
+          round
+          icon="cancel"
+          color="grey-7"
+          unelevated
+          v-show="selectedUsers.size != 0"
+          @click="clearSelection()"
+        >
+          <q-tooltip anchor="top middle" self="bottom middle" :offset="[10, 10]"
+            >Cancel</q-tooltip
+          >
         </q-btn>
       </div>
     </q-page-sticky>
@@ -244,6 +268,7 @@ import {
   notifySuccessRequest,
 } from "./../composables/notify.js";
 import { getData, postData, putData } from "./../services/APIClient.js";
+import { formatDate } from "../utils/formatDate.js";
 
 const authStore = useAuthStore();
 const selectedUsers = ref(new Set());
@@ -265,52 +290,127 @@ let rows = ref([]);
 let columns = ref([
   {
     name: "actions",
-    label: "Seleccionar",
+    label: "Select",
     align: "center",
     field: "select",
   },
   {
     name: "usr_identification",
-    label: "Identificación",
+    label: "Identification",
     align: "center",
     field: "USR_IDENTIFICATION",
   },
   {
     name: "usr_name",
-    label: "Nombre",
+    label: "Name",
     align: "center",
     field: "USR_NAME",
     sortable: true,
   },
   {
     name: "usr_username",
-    label: "Usuario",
+    label: "Username",
     align: "center",
     field: "USR_USERNAME",
   },
   {
     name: "usr_email",
     align: "center",
-    label: "Correo electrónico",
+    label: "Email",
     field: "USR_EMAIL",
   },
   {
     name: "usr_phone",
     align: "center",
-    label: "Teléfono",
+    label: "Phone",
     field: "USR_PHONE",
+  },
+  {
+    name: "usr_created_at",
+    align: "center",
+    label: "Created at",
+    field: "USR_CREATED_AT",
+  },
+  {
+    name: "usr_updated_at",
+    align: "center",
+    label: "Updated at",
+    field: "USR_UPDATED_AT",
+  },
+  {
+    name: "usr_last_login",
+    align: "center",
+    label: "Last log in",
+    field: "USR_LAST_LOGIN",
+  },
+  {
+    name: "usr_created_by_user",
+    align: "center",
+    label: "Created by user",
+    field: "USR_CREATED_BY_USER",
+  },
+  {
+    name: "usr_updated_by_user",
+    align: "center",
+    label: "Updated by user",
+    field: "USR_UPDATED_BY_USER",
+  },
+  {
+    name: "usr_created_by_pass",
+    align: "center",
+    label: "Created by password",
+    field: "USR_CREATED_BY_PASS",
+  },
+  {
+    name: "usr_updated_by_pass",
+    align: "center",
+    label: "Updated by password",
+    field: "USR_UPDATED_BY_PASS",
+  },
+  {
+    name: "usr_pass_created_at",
+    align: "center",
+    label: "Created password at",
+    field: "USR_PASS_CREATED_AT",
+  },
+  {
+    name: "usr_pass_updated_at",
+    align: "center",
+    label: "Updated password at",
+    field: "USR_PASS_UPDATED_AT",
   },
   {
     name: "usr_status",
     align: "center",
-    label: "Estado",
+    label: "Status",
     field: "USR_STATE_USER",
-    sortable: true,
   },
   {
     name: "options",
     align: "center",
-    label: "Opciones",
+    label: "Options",
+  },
+]);
+let optionsStatus = ref([
+  {
+    label: "Active",
+    value: 1,
+  },
+  {
+    label: "Inactive",
+    value: 2,
+  },
+  {
+    label: "Account blocked",
+    value: 3,
+  },
+  {
+    label: "Password expired",
+    value: 4,
+  },
+  {
+    label: "Account disabled",
+    value: 5,
   },
 ]);
 
@@ -320,17 +420,17 @@ onBeforeMount(() => {
 
 const selectionMode = computed(() => {
   const selected = Array.from(selectedUsers.value);
-  const selectedStates = selected.map(id => {
-    const user = rows.value.find(u => u._id === id);
+  const selectedStates = selected.map((id) => {
+    const user = rows.value.find((u) => u._id === id);
     return user ? user.USR_STATE_USER : null;
   });
 
   const hasActive = selectedStates.includes(1);
-  const hasInactive = selectedStates.includes(0);
+  const hasInactive = selectedStates.some((s) => [2, 3, 4, 5].includes(s));
 
-  if (hasActive && !hasInactive) return 'active';
-  if (!hasActive && hasInactive) return 'inactive';
-  return null; // mezcla o ninguno
+  if (hasActive && !hasInactive) return "active";
+  if (!hasActive && hasInactive) return "inactive";
+  return null;
 });
 
 const selectedUsersSet = computed({
@@ -339,17 +439,17 @@ const selectedUsersSet = computed({
 });
 
 async function bulkToggleUsers(action) {
-  const actionUrl = action === "activate" ? "/active" : "/deactive";
+  const actionValue = action === "activate" ? "1" : "2";
   try {
     loadingTable.value = true;
     for (const id of selectedUsers.value) {
-      await putData(`${actionUrl}/${id}`, {});
+      await putData(`/changeStatus/${id}/${actionValue}`, {});
     }
-    selectedUsers.value.clear();
+    clearSelection();
     notifySuccessRequest(
-      `Usuarios ${
-        action === "activate" ? "activados" : "desactivados"
-      } correctamente.`
+      `Users successfully ${
+        action === "activate" ? "activated" : "deactivated"
+      }`
     );
     await getUsers();
   } catch (error) {
@@ -358,6 +458,10 @@ async function bulkToggleUsers(action) {
   } finally {
     loadingTable.value = false;
   }
+}
+
+function clearSelection() {
+  selectedUsers.value.clear();
 }
 
 const filteredRows = computed(() => {
@@ -370,7 +474,16 @@ const filteredRows = computed(() => {
       user.USR_EMAIL?.toLowerCase().includes(filter) ||
       user.USR_USERNAME?.toLowerCase().includes(filter) ||
       user.USR_IDENTIFICATION?.toString().includes(filter) ||
-      user.USR_PHONE?.toString().includes(filter)
+      user.USR_PHONE?.toString().includes(filter) ||
+      user.USR_LAST_LOGIN?.toString().includes(filter) ||
+      user.USR_CREATED_BY_USER?.toString().includes(filter) ||
+      user.USR_UPDATED_BY_USER?.toString().includes(filter) ||
+      user.USR_CREATED_AT?.toString().includes(filter) ||
+      user.USR_UPDATED_AT?.toString().includes(filter) ||
+      user.USR_CREATED_BY_PASS?.toString().includes(filter) ||
+      user.USR_UPDATED_BY_PASS?.toString().includes(filter) ||
+      user.USR_PASS_CREATED_AT?.toString().includes(filter) ||
+      user.USR_PASS_UPDATED_AT?.toString().includes(filter)
   );
 });
 
@@ -379,32 +492,47 @@ async function getUsers() {
   try {
     let data = await getData("/listAllUsers");
     console.log(data);
-    rows.value = data.users;
+    rows.value = await Promise.all(
+      data.users.map(async (user) => {
+        return {
+          ...user,
+          USR_LAST_LOGIN: formatDate(user.USR_LAST_LOGIN),
+          USR_CREATED_AT: formatDate(user.USR_CREATED_AT),
+          USR_UPDATED_AT: formatDate(user.USR_UPDATED_AT),
+          USR_PASS_CREATED_AT: formatDate(user.USR_PASS_CREATED_AT),
+          USR_PASS_UPDATED_AT: formatDate(user.USR_PASS_UPDATED_AT),
+          USR_CREATED_BY_USER: await usernameById(user.USR_CREATED_BY_USER),
+          USR_UPDATED_BY_USER: await usernameById(user.USR_UPDATED_BY_USER),
+          USR_CREATED_BY_PASS: await usernameById(user.USR_CREATED_BY_PASS),
+          USR_UPDATED_BY_PASS: await usernameById(user.USR_UPDATED_BY_PASS),
+        };
+      })
+    );
   } catch (error) {
     console.log(error);
-    notifyErrorRequest("Error al traer datos");
+    notifyErrorRequest("Error when fetching data");
   } finally {
     loadingTable.value = false;
   }
 }
 
-async function toggleStatus(id) {
-  loadingStatus.value[id] = true;
+async function usernameById(id) {
   try {
-    let userIsActive = await getData(`/listUserById/${id}`);
-    let url =
-      userIsActive.user.USR_STATE_USER == 1
-        ? `/deactive/${id}`
-        : `/active/${id}`;
+    let data = await getData(`/listUserById/${id}`);
+    return data.user.USR_USERNAME;
+  } catch (error) {
+    console.log(error);
+  }
+}
 
-    let data = await putData(url, {});
+async function toggleStatus(id, status) {
+  try {
+    let data = await putData(`/changeStatus/${id}/${status}`, {});
     getUsers();
   } catch (error) {
     notifyErrorRequest(
-      error?.response?.data?.errors?.[0]?.msg || "Error desconocido"
+      error?.response?.data?.errors?.[0]?.msg || "Unknown error"
     );
-  } finally {
-    loadingStatus.value[id] = false;
   }
 }
 
@@ -434,21 +562,22 @@ async function saveUser() {
       USR_PASSWORD: pass.value.trim(),
       USR_EMAIL: email.value.trim(),
       USR_PHONE: phone.value.trim(),
-      USR_ACTION: authStore.getID(),
+      USR_UPDATED_BY_USER: authStore.getID(),
+      USR_CREATED_BY_USER: authStore.getID(),
     };
     if (isCreating.value) {
       data = await postData("/create", userData);
-      notifySuccessRequest("Usuario creado exitosamente");
+      notifySuccessRequest("User created successfully");
     } else {
       data = await putData(`/update/${idUserToEdit.value}`, userData);
-      notifySuccessRequest("Usuario actualizado exitosamente");
+      notifySuccessRequest("User updated successfully");
     }
     getUsers();
     onReset();
     isDialogOpen.value = false;
   } catch (error) {
     notifyErrorRequest(
-      error?.response?.data?.errors?.[0]?.msg || "Error desconocido"
+      error?.response?.data?.errors?.[0]?.msg || "Unknown error"
     );
     console.log(error);
   } finally {
@@ -466,3 +595,14 @@ function onReset() {
   idUserToEdit.value = "";
 }
 </script>
+<style scoped>
+.formGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+}
+@media screen and (max-width: 534px) and (min-width: 300px) {
+  .formGrid {
+    display: block;
+  }
+}
+</style>

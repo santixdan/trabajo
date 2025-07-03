@@ -8,7 +8,7 @@ class Server {
         this.port = process.env.PORT;
         this.mongo_uri = process.env.MONGO_URI
         this.paths = {
-            users: '/users'
+            users: '/users/api'
         };
         this.middlewares();
         this.routes();

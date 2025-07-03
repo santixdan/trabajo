@@ -1,7 +1,7 @@
 import axios from 'axios';
 
 const APIClient = axios.create({
-    baseURL: 'http://localhost:4000/users/',
+    baseURL: 'http://localhost:4000/users/api',
 });
 
 // Interceptor para adjuntar el token actualizado

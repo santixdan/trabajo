@@ -6,13 +6,12 @@ const generateJWT = (uid) => {
     return new Promise((resolve, reject) => {
         const payload = { uid };
         jwt.sign(payload, process.env.SECRETORPRIVATEKEY, {
-            //100 years
             expiresIn: "1h"
-        }, (err, token) => {
+        }, (err, TOKEN) => {
             if (err) {
-                reject("No se pudo generar el token")
+                reject("Credentials error1")
             } else {
-                resolve(token)
+                resolve(TOKEN)
             }
         })
     })
@@ -22,7 +21,7 @@ const validteJWT = async (req, res, next) => {
     const token = req.header("token");
     if (!token) {
         return res.status(401).json({
-            msg: "Error en la petición"
+            msg: "Credentials error2"
         })
     }
     try {
@@ -31,19 +30,19 @@ const validteJWT = async (req, res, next) => {
         const { uid } = jwt.verify(token, process.env.SECRETORPRIVATEKEY)
         if(!uid){
             return res.status(401).json({
-                msg: "Error en la petición"
+                msg: "Credentials error3"
             })
         }
         userLogged = await User.findById(uid);
         if (!userLogged) {
             return res.status(401).json({
-                msg: "Error en la petición"
+                msg: "Credentials error4"
             })
         }
 
-        if (userLogged.USR_STATE_USER == 0) {
+        if ([2,3,4,5].includes(userLogged.USR_STATE_USER)) {
             return res.status(401).json({
-                msg: "Error en la petición"
+                msg: "Credentials error5"
             })
         }
 
@@ -51,8 +50,10 @@ const validteJWT = async (req, res, next) => {
 
     } catch (error) {
         res.status(401).json({
-            msg: "Token no valido"
+            msg: "Credentials error6"
         })
+        console.log(error);
+        
     }
 }
 
