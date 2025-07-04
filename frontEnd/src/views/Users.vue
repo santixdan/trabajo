@@ -1,5 +1,5 @@
 <template>
-  <div class="todo">
+  <div>
     <div>
       <q-table
         :rows="filteredRows"
@@ -7,18 +7,32 @@
         row-key="_id"
         :loading="loadingTable"
         separator="vertical"
+        :visible-columns="['usr_username', ...visibleColumns]"
       >
         <template v-slot:top>
           <div
             class="row items-center justify-between full-width"
             align="center"
           >
-            <div class="text-h6 text-bold">Users</div>
+            <div class="text-h3 text-bold">Users</div>
             <div class="row items-center justify-center q-gutter-md">
               <q-input
                 v-model="inpSearch"
                 label="Search"
-                style="max-width: 110px"
+                style="min-width: 150px"
+              />
+
+              <q-select
+                v-model="visibleColumns"
+                multiple
+                :display-value="$q.lang.table.columns"
+                emit-value
+                map-options
+                :options="columns"
+                option-value="name"
+                options-cover
+                style="min-width: 150px"
+                label="Columns selected"
               />
               <q-btn
                 unelevated
@@ -391,6 +405,7 @@ let columns = ref([
     label: "Options",
   },
 ]);
+let visibleColumns = ref(columns.value.map((col) => col.name));
 let optionsStatus = ref([
   {
     label: "Active",
@@ -600,6 +615,7 @@ function onReset() {
   display: grid;
   grid-template-columns: 1fr 1fr;
 }
+
 @media screen and (max-width: 534px) and (min-width: 300px) {
   .formGrid {
     display: block;

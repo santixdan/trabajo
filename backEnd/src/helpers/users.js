@@ -21,8 +21,8 @@ const usersHelpers = {
             throw new Error("Identification already in use");
         } return true
     },
-    validateIdentificationUserUpdate: async (USR_IDENTIFICATION, ID) => {
-        const user = await User.findOne({ USR_IDENTIFICATION, _id: { $ne: ID } });
+    validateIdentificationUserUpdate: async (USR_IDENTIFICATION, id) => {
+        const user = await User.findOne({ USR_IDENTIFICATION, _id: { $ne: id } });
         if (user) {
             throw new Error("Identification already in use");
         } return true
@@ -33,8 +33,8 @@ const usersHelpers = {
             throw new Error("Username already in use");
         } return true
     },
-    validateUsernameUserUpdate: async (USR_USERNAME, ID) => {
-        const user = await User.findOne({ USR_USERNAME, _id: { $ne: ID } });
+    validateUsernameUserUpdate: async (USR_USERNAME, id) => {
+        const user = await User.findOne({ USR_USERNAME, _id: { $ne: id } });
         if (user) {
             throw new Error("Username already in use");
         } return true
@@ -45,8 +45,8 @@ const usersHelpers = {
             throw new Error("Phone number already in use");
         } return true
     },
-    validatePhoneUserUpdate: async (USR_PHONE, ID) => {
-        const user = await User.findOne({ USR_PHONE, _id: { $ne: ID } });
+    validatePhoneUserUpdate: async (USR_PHONE, id) => {
+        const user = await User.findOne({ USR_PHONE, _id: { $ne: id } });
         if (user) {
             throw new Error("Phone number already in use");
         } return true
@@ -57,14 +57,14 @@ const usersHelpers = {
             throw new Error("Email already in use");
         } return true
     },
-    validateEmailUserUpdate: async (USR_EMAIL, ID) => {
-        const user = await User.findOne({ USR_EMAIL, _id: { $ne: ID } });
+    validateEmailUserUpdate: async (USR_EMAIL, id) => {
+        const user = await User.findOne({ USR_EMAIL, _id: { $ne: id } });
         if (user) {
             throw new Error("Email already in use");
         } return true
     },
-    validateIDUser: async (ID) => {
-        const user = await User.findById(ID);
+    validateIDUser: async (id) => {
+        const user = await User.findById(id);
         if (!user) {
             throw new Error("User not found");
         } return true

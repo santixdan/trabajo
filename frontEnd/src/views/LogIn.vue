@@ -1,5 +1,5 @@
 <template>
-  <div>
+  <div class="background-wrapper">
     <div align="center" id="mainContainer" style="margin: 0px">
       <q-card style="margin: 0px" class="my-card">
         <q-card-actions class="cardContent" align="center">
@@ -180,21 +180,16 @@ function onReset() {
   max-width: 300px;
 }
 
-body {
+.background-wrapper {
   position: relative;
-  margin: 0;
-  padding: 0;
   min-height: 100vh;
-  z-index: 0;
+  overflow: hidden;
 }
 
-body::before {
+.background-wrapper::before {
   content: "";
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
+  position: absolute;
+  inset: 0;
   background-image: url("./../assets/images/CLARO-Background.jpg");
   background-size: cover;
   background-position: center;

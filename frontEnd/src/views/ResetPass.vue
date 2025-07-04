@@ -1,5 +1,5 @@
 <template>
-  <div align="center" id="mainContainer" style="margin: 0px">
+  <div align="center" id="mainContainer" class="background-wrapper" style="margin: 0px">
     <q-card style="margin: 0px" class="my-card">
       <q-card-actions class="cardContent" align="center">
         <div class="column items-center q-mt-md">
@@ -117,29 +117,6 @@ function onReset() {
 .my-card {
   width: 100%;
   max-width: 300px;
-}
-
-body {
-  position: relative;
-  margin: 0;
-  padding: 0;
-  min-height: 100vh;
-  z-index: 0;
-}
-
-body::before {
-  content: "";
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-image: url("https://img.lalr.co/cms/2017/07/07201512/CLARO-.jpg?size=xl&ratio=r40_21");
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
-  opacity: 0.7;
-  z-index: -1;
 }
 
 #hr2 {

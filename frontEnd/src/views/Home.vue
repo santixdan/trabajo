@@ -78,7 +78,7 @@
       </div>
       <router-view></router-view>
     </q-page-container>
-    <q-footer class="text-black" style="background-color: #525252; height: 40px; display: flex; align-items: center;" align="center">
+    <q-footer class="text-black" style="background-color: #525252; height: 30px; display: flex; align-items: center;" align="center">
       <q-toolbar>
         <q-toolbar-title>
           <div class="text-h6 text-subtitle2 text-grey-4">
