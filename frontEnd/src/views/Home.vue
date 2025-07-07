@@ -51,7 +51,7 @@
         </div>
       </q-list>
     </q-drawer>
-    <q-page-container>
+    <q-page-container style="padding-bottom: 0px;">
       <div
         v-if="$route.path === '/home'"
         class="q-pa-md row justify-center items-center q-gutter-md"

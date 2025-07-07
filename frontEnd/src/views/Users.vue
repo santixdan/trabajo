@@ -7,24 +7,36 @@
         row-key="_id"
         :loading="loadingTable"
         separator="vertical"
-        :visible-columns="['usr_username', ...visibleColumns]"
+        :visible-columns="['usr_username', 'options', ...visibleColumns]"
+        dense
+        color="primary"
+        class="my-sticky-header-table my-sticky-column-table"
+        :pagination="pagination"
+        virtual-scroll
       >
+        <template v-slot:loading>
+          <q-inner-loading showing color="primary" />
+        </template>
+
         <template v-slot:top>
           <div
             class="row items-center justify-between full-width"
             align="center"
           >
-            <div class="text-h3 text-bold">Users</div>
+            <div class="text-h4 text-bold">Users</div>
             <div class="row items-center justify-center q-gutter-md">
               <q-input
                 v-model="inpSearch"
                 label="Search"
+                dense
                 style="min-width: 150px"
+                clearable
               />
 
               <q-select
                 v-model="visibleColumns"
                 multiple
+                dense
                 :display-value="$q.lang.table.columns"
                 emit-value
                 map-options
@@ -37,6 +49,7 @@
               <q-btn
                 unelevated
                 round
+                dense
                 icon="add"
                 color="primary"
                 @click="(isDialogOpen = true), (isCreating = true)"
@@ -113,7 +126,6 @@
         </template>
       </q-table>
     </div>
-
     <div>
       <q-dialog v-model="isDialogOpen" persistent>
         <q-card>
@@ -298,6 +310,7 @@ let inpSearch = ref();
 let isPwd = ref(true);
 let loadingButton = ref(false);
 let loadingStatus = ref({});
+let pagination = ref({ rowsPerPage: 0 });
 let loadingTable = ref(false);
 let idUserToEdit = ref();
 let rows = ref([]);
@@ -611,7 +624,7 @@ function onReset() {
 }
 </script>
 <style scoped>
-.formGrid {
+.formGrid{
   display: grid;
   grid-template-columns: 1fr 1fr;
 }
@@ -619,6 +632,47 @@ function onReset() {
 @media screen and (max-width: 534px) and (min-width: 300px) {
   .formGrid {
     display: block;
+    color: rgb(165, 165, 165)
   }
 }
+</style>
+
+<style lang="sass">
+.my-sticky-header-table
+  height: 84vh
+
+  .q-table__top,
+  .q-table__bottom,
+  thead tr:first-child th
+    /* bg color is important for th; just specify one */
+    background-color: white
+
+  thead tr th
+    position: sticky
+    z-index: 1
+
+  /* this is when the loading indicator appears */
+  &.q-table--loading thead tr:last-child th
+    /* height of all previous header rows */
+    top: 48px
+
+  /* prevent scrolling behind sticky top row on focus */
+  tbody
+    /* height of all previous header rows */
+    scroll-margin-top: 48px
+
+/*.my-sticky-column-table
+  width: auto
+
+  thead tr:last-child  th:last-child 
+    background-color: rgb(165, 165, 165)
+
+  td:last-child 
+    background-color: rgb(165, 165, 165)
+
+  th:last-child ,
+  td:last-child 
+    position: sticky
+    right: 0
+    z-index: 1*/
 </style>

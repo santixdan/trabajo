@@ -57,20 +57,20 @@ userRouter.put("/update/:id", [
     check("id").custom(usersHelpers.validateIDUser),
     check("USR_IDENTIFICATION", "Identification must be valid").notEmpty(),
     check("USR_IDENTIFICATION").custom((USR_IDENTIFICATION, { req }) => {
-        return usersHelpers.validateIdentificationUserUpdate(USR_IDENTIFICATION, req.params.ID)
+        return usersHelpers.validateIdentificationUserUpdate(USR_IDENTIFICATION, req.params.id)
     }),
     check("USR_NAME", "Name must be valid").notEmpty(),
     check("USR_USERNAME", "Username must be valid").notEmpty(),
     check("USR_USERNAME").custom((USR_USERNAME, { req }) => {
-        return usersHelpers.validateUsernameUserUpdate(USR_USERNAME, req.params.ID)
+        return usersHelpers.validateUsernameUserUpdate(USR_USERNAME, req.params.id)
     }),
     check("USR_EMAIL", "Email must be valid").isEmail(),
     check("USR_EMAIL").custom((USR_EMAIL, { req }) => {
-        return usersHelpers.validateEmailUserUpdate(USR_EMAIL, req.params.ID)
+        return usersHelpers.validateEmailUserUpdate(USR_EMAIL, req.params.id)
     }),
     check("USR_PHONE", "Phone must be valid").isMobilePhone(),
     check("USR_PHONE").custom(async (USR_PHONE, { req }) => {
-        await usersHelpers.validatePhoneUserUpdate(USR_PHONE, req.params.ID)
+        await usersHelpers.validatePhoneUserUpdate(USR_PHONE, req.params.id)
     }),
     validateFields
 ], httpUsers.updateUser)
