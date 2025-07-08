@@ -36,12 +36,12 @@ const httpUsers = {
     },
     createUser: async (req, res) => {
         try {
-            const { USR_IDENTIFICATION, USR_NAME, USR_USERNAME, USR_PASSWORD, USR_EMAIL, USR_PHONE, USR_CREATED_BY_USER, USR_UPDATED_BY_USER } = req.body
+            const { USR_IDENTIFICATION, USR_NAME, USR_USERNAME, USR_EMAIL, USR_PHONE, USR_CREATED_BY_USER, USR_UPDATED_BY_USER } = req.body
 
             const cleanName = normalizeName(USR_NAME);
 
             const salt = bcrypt.genSaltSync();
-            const hashedPassword = bcrypt.hashSync(USR_PASSWORD, salt);
+            const hashedPassword = bcrypt.hashSync("12345", salt);
 
             const newUser = new User({ USR_IDENTIFICATION, USR_NAME: cleanName, USR_USERNAME, USR_PASSWORD: hashedPassword, USR_EMAIL, USR_PHONE, USR_CREATED_BY_USER, USR_UPDATED_BY_USER, USR_CREATED_BY_PASS: USR_CREATED_BY_USER });
 
@@ -99,11 +99,11 @@ const httpUsers = {
     updateUser: async (req, res) => {
         try {
             const id = req.params.id
-            const { USR_IDENTIFICATION, USR_NAME, USR_USERNAME, USR_EMAIL, USR_PHONE, USR_UPDATED_BY_USER } = req.body
+            const { USR_IDENTIFICATION, USR_NAME, USR_USERNAME, USR_EMAIL, USR_PHONE, USR_UPDATED_BY_USER, status, status_pass } = req.body
 
             const cleanName = normalizeName(USR_NAME);
 
-            const newUser = await User.findByIdAndUpdate(id, { USR_IDENTIFICATION, USR_NAME: cleanName, USR_USERNAME, USR_EMAIL, USR_PHONE, USR_UPDATED_BY_USER }, { new: true });
+            const newUser = await User.findByIdAndUpdate(id, { USR_IDENTIFICATION, USR_NAME: cleanName, USR_USERNAME, USR_EMAIL, USR_PHONE, USR_UPDATED_BY_USER, USR_STATE_USER: status, USR_STATE_PASS: status_pass }, { new: true });
 
             res.json({ newUser });
         } catch (error) {
@@ -130,7 +130,8 @@ const httpUsers = {
     },
     changeUserStatus: async (req, res) => {
         try {
-            const { id, status } = req.params;
+            const id = req.params.id;
+            const status = req.body.status;
 
             await User.findByIdAndUpdate(id, { USR_STATE_USER: status });
             res.json({ msg: "User status updated" });

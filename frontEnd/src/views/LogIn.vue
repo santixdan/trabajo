@@ -15,6 +15,7 @@
                 type="email"
                 v-model="email"
                 label="Email"
+                placeholder="example@claro.com.co"
                 lazy-rules
                 :rules="[
                   (val) => (val && val.length > 0) || 'Please, type your email',
@@ -24,6 +25,7 @@
                 :type="isPwd ? 'password' : 'text'"
                 v-model="password"
                 label="Password"
+                placeholder="xxxxxxxx"
                 lazy-rules
                 @paste.prevent
                 :rules="[
@@ -82,6 +84,7 @@
                   style="max-width: 250px; min-width: 200px"
                   v-model="resetEmail"
                   label="Email"
+                  placeholder="example@claro.com.co"
                   lazy-rules
                   :rules="[
                     (val) =>
@@ -182,7 +185,7 @@ function onReset() {
 
 .background-wrapper {
   position: relative;
-  min-height: 100vh;
+  height: 100vh;
   overflow: hidden;
 }
 
@@ -214,5 +217,14 @@ function onReset() {
 .cardContent {
   display: flex;
   flex-direction: column;
+}
+
+@media screen and (max-width: 425px) and (min-width: 320px) {
+  .background-wrapper {
+    height: 90vh;
+  }
+  #mainContainer {
+    height: 85vh !important;
+  }
 }
 </style>

@@ -1,8 +1,20 @@
 <template>
   <q-layout view="hHh LpR fFf">
     <q-header elevated class="bg-primary text-white">
-      <q-toolbar>
+      <q-toolbar class="row">
         <q-btn dense flat round icon="menu" @click="toggleLeftDrawer" />
+        <q-breadcrumbs active-color="white" style="font-size: 16px">
+          <q-breadcrumbs-el
+            v-for="(crumb, index) in breadcrumbLinks"
+            :key="index"
+            :label="crumb.label"
+            :to="crumb.to"
+            :icon="crumb.icon"
+            :exact="true"
+            class="cursor-pointer"
+          />
+        </q-breadcrumbs>
+        <q-space></q-space>
         <router-link to="/home">
           <img src="./../assets/images/Claro-blanco 1.svg" />
         </router-link>
@@ -17,17 +29,6 @@
           @click="alert = true"
         />
       </q-toolbar>
-      <q-breadcrumbs active-color="white" style="font-size: 16px">
-        <q-breadcrumbs-el
-          v-for="(crumb, index) in breadcrumbLinks"
-          :key="index"
-          :label="crumb.label"
-          :to="crumb.to"
-          :icon="crumb.icon"
-          :exact="true"
-          class="cursor-pointer"
-        />
-      </q-breadcrumbs>
     </q-header>
     <q-drawer
       v-model="leftDrawerOpen"
@@ -51,7 +52,7 @@
         </div>
       </q-list>
     </q-drawer>
-    <q-page-container style="padding-bottom: 0px;">
+    <q-page-container style="padding-bottom: 0px">
       <div
         v-if="$route.path === '/home'"
         class="q-pa-md row justify-center items-center q-gutter-md"
@@ -78,7 +79,16 @@
       </div>
       <router-view></router-view>
     </q-page-container>
-    <q-footer class="text-black" style="background-color: #525252; height: 30px; display: flex; align-items: center;" align="center">
+    <q-footer
+      class="text-black"
+      style="
+        background-color: #525252;
+        height: 30px;
+        display: flex;
+        align-items: center;
+      "
+      align="center"
+    >
       <q-toolbar>
         <q-toolbar-title>
           <div class="text-h6 text-subtitle2 text-grey-4">
@@ -123,7 +133,7 @@ import { useAuthStore } from "./../stores/useAuth.js";
 const authStore = useAuthStore();
 const route = useRoute();
 const leftDrawerOpen = ref(false);
-let username = authStore.getUsername();
+let username = authStore?.getUsername() || "none";
 let alert = ref(false);
 
 const breadcrumbLinks = computed(() => {

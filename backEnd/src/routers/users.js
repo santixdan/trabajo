@@ -8,13 +8,13 @@ const { usersHelpers } = require('../helpers/users.js');
 
 //GET
 userRouter.get("/listAllUsers", [
-    validteJWT, 
+    validteJWT,
     validateFields
 ], httpUsers.getAllUsers)
 
 userRouter.get("/listUserById/:id", [
-    validteJWT, 
-    check("id","ID must be valid").isMongoId(),
+    validteJWT,
+    check("id", "ID must be valid").isMongoId(),
     check("id").custom(usersHelpers.validateIDUser),
     validateFields
 ], httpUsers.getUserById)
@@ -27,7 +27,6 @@ userRouter.post("/create", [
     check("USR_NAME", "Name must be valid").notEmpty(),
     check("USR_USERNAME", "Username must be valid").notEmpty(),
     check("USR_USERNAME").custom(usersHelpers.validateUsernameUser),
-    check("USR_PASSWORD", "The password must have at least 5 characters").notEmpty().isLength({ min: 5 }),
     check("USR_EMAIL", "Email must be valid").isEmail(),
     check("USR_EMAIL").custom(usersHelpers.validateEmailUser),
     check("USR_PHONE", "Phone number must be valid").isMobilePhone(),
@@ -52,8 +51,8 @@ userRouter.post('/sendEmail', [
 
 //PUT
 userRouter.put("/update/:id", [
-    validteJWT, 
-    check("id","ID must be valid").isMongoId(),
+    validteJWT,
+    check("id", "ID must be valid").isMongoId(),
     check("id").custom(usersHelpers.validateIDUser),
     check("USR_IDENTIFICATION", "Identification must be valid").notEmpty(),
     check("USR_IDENTIFICATION").custom((USR_IDENTIFICATION, { req }) => {
@@ -72,13 +71,17 @@ userRouter.put("/update/:id", [
     check("USR_PHONE").custom(async (USR_PHONE, { req }) => {
         await usersHelpers.validatePhoneUserUpdate(USR_PHONE, req.params.id)
     }),
+    check("status", "STATUS must be valid").notEmpty(),
+    check("status").custom(usersHelpers.validateStatus),
+    check("status_pass", "STATUS_PASS must be valid").notEmpty(),
+    check("status_pass").custom(usersHelpers.validateStatus),
     validateFields
 ], httpUsers.updateUser)
-userRouter.put("/changeStatus/:id/:status", [
-    validteJWT, 
-    check("id","id must be valid").isMongoId(),
+userRouter.put("/changeStatus/:id", [
+    validteJWT,
+    check("id", "id must be valid").isMongoId(),
     check("id").custom(usersHelpers.validateIDUser),
-    check("status","STATUS must be valid").notEmpty(),
+    check("status", "STATUS must be valid").notEmpty(),
     check("status").custom(usersHelpers.validateStatus),
     validateFields
 ], httpUsers.changeUserStatus)
@@ -94,8 +97,8 @@ userRouter.put('/updatePass', [
 
 //DELETE
 userRouter.delete("/delete/:id", [
-    validteJWT, 
-    check("id","ID must be valid").isMongoId(),
+    validteJWT,
+    check("id", "ID must be valid").isMongoId(),
     check("id").custom(usersHelpers.validateIDUser),
     validateFields
 ], httpUsers.deleteUser)

@@ -1,5 +1,10 @@
 <template>
-  <div align="center" id="mainContainer" class="background-wrapper" style="margin: 0px">
+  <div
+    align="center"
+    id="mainContainer"
+    class="background-wrapper"
+    style="margin: 0px"
+  >
     <q-card style="margin: 0px" class="my-card">
       <q-card-actions class="cardContent" align="center">
         <div class="column items-center q-mt-md">
@@ -14,6 +19,7 @@
               :type="isPwd1 ? 'password' : 'text'"
               v-model="new_password"
               label="Nueva contraseña"
+              placeholder="xxxxxxxx"
               lazy-rules
               @paste.prevent
               :rules="[
@@ -33,6 +39,7 @@
               :type="isPwd2 ? 'password' : 'text'"
               v-model="conf_password"
               label="Confirmar contraseña"
+              placeholder="xxxxxxxx"
               lazy-rules
               @paste.prevent
               :rules="[
@@ -101,7 +108,9 @@ async function authenticateUser() {
   } catch (error) {
     console.log(error);
     notifyErrorRequest(
-      error?.response?.data?.errors?.[0]?.msg || "Unknown error"
+      error?.response?.data?.error?.message ||
+        error?.response?.data?.errors?.[0]?.msg ||
+        "Unknown error"
     );
   } finally {
     loadingBtn.value = false;

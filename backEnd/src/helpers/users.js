@@ -81,7 +81,7 @@ const usersHelpers = {
         } return true
     },
     validateStatus: (STATUS) => {
-        const allowedStatus = ["1", "2", "3", "4", "5"]
+        const allowedStatus = [1, 2, 3, 4, 5]
         if (!allowedStatus.includes(STATUS)) {
             throw new Error("Invalid status value");
         } return true

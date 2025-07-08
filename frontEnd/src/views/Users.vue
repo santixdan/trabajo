@@ -7,7 +7,12 @@
         row-key="_id"
         :loading="loadingTable"
         separator="vertical"
-        :visible-columns="['usr_username', 'options', ...visibleColumns]"
+        :visible-columns="[
+          'usr_username',
+          'options',
+          'actions',
+          ...visibleColumns,
+        ]"
         dense
         color="primary"
         class="my-sticky-header-table my-sticky-column-table"
@@ -45,7 +50,24 @@
                 options-cover
                 style="min-width: 150px"
                 label="Columns selected"
-              />
+              >
+                <template v-slot:option="scope">
+                  <q-item
+                    v-bind="scope.itemProps"
+                    :class="[
+                      {
+                        'text-white bg-primary': scope.selected,
+                        'text-black': !scope.selected,
+                      },
+                      scope.opt.disableSelect ? 'no-disable-style' : '',
+                    ]"
+                  >
+                    <q-item-section>
+                      {{ scope.opt.label }}
+                    </q-item-section>
+                  </q-item>
+                </template>
+              </q-select>
               <q-btn
                 unelevated
                 round
@@ -101,14 +123,11 @@
         </template>
         <template v-slot:body-cell-usr_status="props">
           <q-td :props="props">
-            <q-select
-              v-model="props.row.USR_STATE_USER"
-              :options="optionsStatus"
-              label="Status"
-              emit-value
-              map-options
-              @update:model-value="toggleStatus(props.row._id, $event)"
-            />
+            <span v-show="props.row.USR_STATE_USER == 1">Active</span>
+            <span v-show="props.row.USR_STATE_USER == 2">Inactive</span>
+            <span v-show="props.row.USR_STATE_USER == 3">Account blocked</span>
+            <span v-show="props.row.USR_STATE_USER == 4">Password expired</span>
+            <span v-show="props.row.USR_STATE_USER == 5">Account disabled</span>
           </q-td>
         </template>
         <template v-slot:body-cell-actions="props">
@@ -155,6 +174,7 @@
                     v-model="identification"
                     type="number"
                     label="Identification"
+                    placeholder="123456"
                     lazy-rules
                     :rules="[
                       (val) =>
@@ -166,6 +186,7 @@
                     style="max-width: 250px; min-width: 200px"
                     v-model="name"
                     label="Name"
+                    placeholder="Pepito Pérez Pinto"
                     lazy-rules
                     :rules="[
                       (val) =>
@@ -176,6 +197,7 @@
                     style="max-width: 250px; min-width: 200px"
                     v-model="username"
                     label="Username"
+                    placeholder="123456"
                     lazy-rules
                     :rules="[
                       (val) =>
@@ -187,6 +209,7 @@
                     v-model="email"
                     type="email"
                     label="Email"
+                    placeholder="example@claro.com.co"
                     lazy-rules
                     :rules="[
                       (val) =>
@@ -198,13 +221,14 @@
                     v-model="phone"
                     type="tel"
                     label="Phone"
+                    placeholder="123456"
                     lazy-rules
                     :rules="[
                       (val) =>
                         (val && val.length > 0) || 'Please, type your phone',
                     ]"
                   />
-                  <q-input
+                  <!-- <q-input
                     v-model="pass"
                     @paste.prevent
                     v-if="isCreating == true"
@@ -224,7 +248,23 @@
                         @click="isPwd = !isPwd"
                       />
                     </template>
-                  </q-input>
+                  </q-input> -->
+                  <q-select
+                    v-model="state_usr"
+                    v-if="isCreating != true"
+                    :options="optionsStatus"
+                    label="User status"
+                    emit-value
+                    map-options
+                  />
+                  <q-select
+                    v-model="state_pass"
+                    v-if="isCreating != true"
+                    :options="optionsStatus"
+                    label="Password status"
+                    emit-value
+                    map-options
+                  />
                 </div>
                 <div>
                   <q-btn
@@ -304,6 +344,8 @@ let username = ref("");
 let identification = ref("");
 let phone = ref("");
 let pass = ref("");
+let state_usr = ref("");
+let state_pass = ref("");
 let isDialogOpen = ref(false);
 let isCreating = ref(); // false: modificar, true: crear
 let inpSearch = ref();
@@ -320,6 +362,7 @@ let columns = ref([
     label: "Select",
     align: "center",
     field: "select",
+    disableSelect: true,
   },
   {
     name: "usr_identification",
@@ -339,6 +382,7 @@ let columns = ref([
     label: "Username",
     align: "center",
     field: "USR_USERNAME",
+    disableSelect: true,
   },
   {
     name: "usr_email",
@@ -409,13 +453,14 @@ let columns = ref([
   {
     name: "usr_status",
     align: "center",
-    label: "Status",
+    label: "User status",
     field: "USR_STATE_USER",
   },
   {
     name: "options",
     align: "center",
     label: "Options",
+    disableSelect: true,
   },
 ]);
 let visibleColumns = ref(columns.value.map((col) => col.name));
@@ -467,11 +512,12 @@ const selectedUsersSet = computed({
 });
 
 async function bulkToggleUsers(action) {
-  const actionValue = action === "activate" ? "1" : "2";
+  const actionValue = action === "activate" ? 1 : 2;
   try {
+    console.log(actionValue);
     loadingTable.value = true;
     for (const id of selectedUsers.value) {
-      await putData(`/changeStatus/${id}/${actionValue}`, {});
+      await putData(`/changeStatus/${id}`, { status: actionValue });
     }
     clearSelection();
     notifySuccessRequest(
@@ -555,7 +601,7 @@ async function usernameById(id) {
 
 async function toggleStatus(id, status) {
   try {
-    let data = await putData(`/changeStatus/${id}/${status}`, {});
+    let data = await putData(`/changeStatus/${id}`, { status });
     getUsers();
   } catch (error) {
     notifyErrorRequest(
@@ -574,6 +620,8 @@ async function bringId(id) {
     username.value = data.user.USR_USERNAME;
     email.value = data.user.USR_EMAIL;
     phone.value = data.user.USR_PHONE;
+    state_usr.value = data.user.USR_STATE_USER;
+    state_pass.value = data.user.USR_STATE_PASS;
   } catch (error) {
     console.log(error);
   }
@@ -592,6 +640,8 @@ async function saveUser() {
       USR_PHONE: phone.value.trim(),
       USR_UPDATED_BY_USER: authStore.getID(),
       USR_CREATED_BY_USER: authStore.getID(),
+      status: state_usr.value,
+      status_pass: state_pass.value,
     };
     if (isCreating.value) {
       data = await postData("/create", userData);
@@ -624,55 +674,89 @@ function onReset() {
 }
 </script>
 <style scoped>
-.formGrid{
+.formGrid {
   display: grid;
   grid-template-columns: 1fr 1fr;
+}
+
+td {
+  padding: 0px !important;
+}
+
+.q-td {
+  padding: 2px 4px !important;
+  font-size: 12px;
+}
+
+.q-table thead th {
+  padding: 0px 0px !important;
+  font-size: 13px;
+}
+
+.no-disable-style {
+  opacity: 1 !important;
+  color: white !important;
+  background-color: #ee2323 !important;
+  pointer-events: none;
 }
 
 @media screen and (max-width: 534px) and (min-width: 300px) {
   .formGrid {
     display: block;
-    color: rgb(165, 165, 165)
+    color: rgb(165, 165, 165);
+  }
+}
+@media screen and (max-width: 425px) and (min-width: 320px) {
+  .my-sticky-header-table {
+    height: 79.5vh;
   }
 }
 </style>
 
 <style lang="sass">
 .my-sticky-header-table
-  height: 84vh
+  height: 88vh
 
   .q-table__top,
   .q-table__bottom,
   thead tr:first-child th
-    /* bg color is important for th; just specify one */
     background-color: white
 
   thead tr th
     position: sticky
     z-index: 1
 
-  /* this is when the loading indicator appears */
   &.q-table--loading thead tr:last-child th
-    /* height of all previous header rows */
     top: 48px
 
-  /* prevent scrolling behind sticky top row on focus */
   tbody
-    /* height of all previous header rows */
     scroll-margin-top: 48px
 
-/*.my-sticky-column-table
+.my-sticky-column-table
   width: auto
 
-  thead tr:last-child  th:last-child 
-    background-color: rgb(165, 165, 165)
+  thead tr:last-child   th:last-child
+    background-color: white
 
-  td:last-child 
-    background-color: rgb(165, 165, 165)
+  thead tr:last-child   th:first-child
+    background-color: white
+
+  td:last-child, td:first-child
+    background-color: white
 
   th:last-child ,
-  td:last-child 
+  td:last-child
     position: sticky
     right: 0
-    z-index: 1*/
+    z-index: 1
+
+  td:first-child
+    position: sticky
+    left: 0
+    z-index: 1
+
+  th:first-child
+    position: sticky
+    left: 0
+    z-index: 2
 </style>
