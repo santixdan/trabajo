@@ -13,7 +13,7 @@ function auth(to,from,next) {
     if (token) {
         next()
     } else {
-        return next()
+        return next("/")
     }
 };
 
