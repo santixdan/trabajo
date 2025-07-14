@@ -3,7 +3,7 @@
     <q-header elevated class="bg-primary text-white">
       <q-toolbar class="row">
         <q-btn dense flat round icon="menu" @click="toggleLeftDrawer" />
-        <q-breadcrumbs active-color="white" style="font-size: 16px">
+        <q-breadcrumbs v-if="!isMobile" active-color="white" style="font-size: 16px">
           <q-breadcrumbs-el
             v-for="(crumb, index) in breadcrumbLinks"
             :key="index"
@@ -19,7 +19,7 @@
           <img src="./../assets/images/Claro-blanco 1.svg" />
         </router-link>
         <q-space></q-space>
-        <h6 style="margin: 0px">{{ username }}</h6>
+        <h6 id="headerUsername">{{ username }}</h6>
         <q-btn
           icon="logout"
           flat
@@ -29,6 +29,17 @@
           @click="alert = true"
         />
       </q-toolbar>
+      <q-breadcrumbs v-if="isMobile" active-color="white" style="font-size: 16px">
+          <q-breadcrumbs-el
+            v-for="(crumb, index) in breadcrumbLinks"
+            :key="index"
+            :label="crumb.label"
+            :to="crumb.to"
+            :icon="crumb.icon"
+            :exact="true"
+            class="cursor-pointer"
+          />
+        </q-breadcrumbs>
     </q-header>
     <q-drawer
       v-model="leftDrawerOpen"
@@ -126,10 +137,14 @@
 </template>
 
 <script setup>
+import { useQuasar } from 'quasar';
 import { ref, computed } from "vue";
 import { useRoute } from "vue-router";
 import { useAuthStore } from "./../stores/useAuth.js";
 
+
+const $q = useQuasar();
+const isMobile = computed(() => $q.screen.lt.sm);
 const authStore = useAuthStore();
 const route = useRoute();
 const leftDrawerOpen = ref(false);
@@ -168,5 +183,15 @@ function toggleLeftDrawer() {
 .my-card {
   width: 100%;
   max-width: 400px;
+}
+
+#headerUsername {
+  margin: 0px;
+}
+
+@media screen and (max-width: 425px) and (min-width: 300px) {
+  #headerUsername {
+    display: none;
+  }
 }
 </style>

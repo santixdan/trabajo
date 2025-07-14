@@ -79,6 +79,7 @@ import { useRouter } from "vue-router";
 import {
   notifyErrorRequest,
   notifySuccessRequest,
+  notifyWarningRequest
 } from "./../composables/notify.js";
 import { putData } from "./../services/APIClient.js";
 
@@ -103,7 +104,7 @@ async function authenticateUser() {
       router.replace("/");
       onReset();
     } else {
-      notifyErrorRequest("Passwords do not match");
+      notifyWarningRequest("Passwords do not match");
     }
   } catch (error) {
     console.log(error);

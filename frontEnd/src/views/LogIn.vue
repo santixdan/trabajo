@@ -138,9 +138,9 @@ async function authenticateUser() {
       USR_EMAIL: email.value.trim(),
       USR_PASSWORD: password.value.trim(),
     });
+    router.replace("/home");
     notifySuccessRequest("Log in successfully");
     authStore.constructor(data.token, data.user._id, data.user.USR_USERNAME);
-    router.replace("/home");
     onReset();
     console.log(data);
   } catch (error) {
